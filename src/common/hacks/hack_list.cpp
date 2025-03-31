@@ -70,6 +70,7 @@ HackManager hack_manager = {
                  },
          }},
 
+#ifdef todotodo
         {HackType::ONLINE_LLE_REQUIRED,
          HackEntry{
              .mode = HackAllowMode::FORCE,
@@ -107,6 +108,7 @@ HackManager hack_manager = {
                      0x000400000D40D200,
                  },
          }},
+#endif
 
         {HackType::REGION_FROM_SECURE,
          HackEntry{

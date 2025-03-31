@@ -238,16 +238,8 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
     connect(ui->button_regenerate_console_id, &QPushButton::clicked, this,
             &ConfigureSystem::RefreshConsoleID);
     connect(ui->button_regenerate_mac, &QPushButton::clicked, this, &ConfigureSystem::RefreshMAC);
-    connect(ui->button_linked_console, &QPushButton::clicked, this,
-            &ConfigureSystem::UnlinkConsole);
-    connect(ui->combo_country, qOverload<int>(&QComboBox::currentIndexChanged), this,
-            [this](int index) {
-                CheckCountryValid(static_cast<u8>(ui->combo_country->itemData(index).toInt()));
-            });
-    connect(ui->region_combobox, qOverload<int>(&QComboBox::currentIndexChanged), this,
-            [this]([[maybe_unused]] int index) {
-                CheckCountryValid(static_cast<u8>(ui->combo_country->currentData().toInt()));
-            });
+    connect(ui->button_start_download, &QPushButton::clicked, this,
+            &ConfigureSystem::DownloadFromNUS);
 
     connect(ui->button_secure_info, &QPushButton::clicked, this, [this] {
         ui->button_secure_info->setEnabled(false);
@@ -255,7 +247,11 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
             this, tr("Select SecureInfo_A/B"), QString(),
             tr("SecureInfo_A/B (SecureInfo_A SecureInfo_B);;All Files (*.*)"));
         ui->button_secure_info->setEnabled(true);
+#ifdef todotodo
         InstallSecureData(file_path_qtstr.toStdString(), HW::UniqueData::GetSecureInfoAPath());
+#else
+        InstallSecureData(file_path_qtstr.toStdString(), cfg->GetSecureInfoAPath());
+#endif
     });
     connect(ui->button_friend_code_seed, &QPushButton::clicked, this, [this] {
         ui->button_friend_code_seed->setEnabled(false);
@@ -264,6 +260,7 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
                                          tr("LocalFriendCodeSeed_A/B (LocalFriendCodeSeed_A "
                                             "LocalFriendCodeSeed_B);;All Files (*.*)"));
         ui->button_friend_code_seed->setEnabled(true);
+#ifdef todotodo
         InstallSecureData(file_path_qtstr.toStdString(),
                           HW::UniqueData::GetLocalFriendCodeSeedBPath());
     });
@@ -281,6 +278,16 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
             this, tr("Select movable.sed"), QString(), tr("Sed file (*.sed);;All Files (*.*)"));
         ui->button_movable->setEnabled(true);
         InstallSecureData(file_path_qtstr.toStdString(), HW::UniqueData::GetMovablePath());
+#else
+        InstallSecureData(file_path_qtstr.toStdString(), cfg->GetLocalFriendCodeSeedBPath());
+    });
+    connect(ui->button_ct_cert, &QPushButton::clicked, this, [this] {
+        ui->button_ct_cert->setEnabled(false);
+        const QString file_path_qtstr = QFileDialog::getOpenFileName(
+            this, tr("Select CTCert"), QString(), tr("CTCert.bin (*.bin);;All Files (*.*)"));
+        ui->button_ct_cert->setEnabled(true);
+        InstallCTCert(file_path_qtstr.toStdString());
+#endif
     });
 
     for (u8 i = 0; i < country_names.size(); i++) {
@@ -288,10 +295,36 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
             ui->combo_country->addItem(tr(country_names.at(i)), i);
         }
     }
-    ui->label_country_invalid->setVisible(false);
-    ui->label_country_invalid->setStyleSheet(QStringLiteral("QLabel { color: #ff3333; }"));
 
     SetupPerGameUI();
+
+    ui->combo_download_set->setCurrentIndex(0);    // set to Minimal
+    ui->combo_download_region->setCurrentIndex(0); // set to the base region
+
+    HW::AES::InitKeys(true);
+    bool keys_available = HW::AES::IsKeyXAvailable(HW::AES::KeySlotID::NCCHSecure1) &&
+                          HW::AES::IsKeyXAvailable(HW::AES::KeySlotID::NCCHSecure2);
+    for (u8 i = 0; i < HW::AES::MaxCommonKeySlot && keys_available; i++) {
+        HW::AES::SelectCommonKeyIndex(i);
+        if (!HW::AES::IsNormalKeyAvailable(HW::AES::KeySlotID::TicketCommonKey)) {
+            keys_available = false;
+            break;
+        }
+    }
+    if (keys_available) {
+        ui->button_start_download->setEnabled(true);
+        ui->combo_download_set->setEnabled(true);
+        ui->combo_download_region->setEnabled(true);
+        ui->label_nus_download->setText(tr("Download System Files from Nintendo servers"));
+    } else {
+        ui->button_start_download->setEnabled(false);
+        ui->combo_download_set->setEnabled(false);
+        ui->combo_download_region->setEnabled(false);
+        ui->label_nus_download->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        ui->label_nus_download->setOpenExternalLinks(true);
+        ui->label_nus_download->setText(tr("Azahar is missing keys to download system files."));
+    }
+
     ConfigureTime();
 }
 
@@ -299,19 +332,6 @@ ConfigureSystem::~ConfigureSystem() = default;
 
 void ConfigureSystem::SetConfiguration() {
     enabled = !system.IsPoweredOn();
-
-    if (!Settings::IsConfiguringGlobal()) {
-        ConfigurationShared::SetHighlight(ui->region_label,
-                                          !Settings::values.region_value.UsingGlobal());
-        const bool is_region_global = Settings::values.region_value.UsingGlobal();
-        ui->region_combobox->setCurrentIndex(
-            is_region_global ? ConfigurationShared::USE_GLOBAL_INDEX
-                             : static_cast<int>(Settings::values.region_value.GetValue()) +
-                                   ConfigurationShared::USE_GLOBAL_OFFSET + 1);
-    } else {
-        // The first item is "auto-select" with actual value -1, so plus one here will do the trick
-        ui->region_combobox->setCurrentIndex(Settings::values.region_value.GetValue() + 1);
-    }
 
     ui->combo_init_clock->setCurrentIndex(static_cast<u8>(Settings::values.init_clock.GetValue()));
     QDateTime date_time;
@@ -374,7 +394,6 @@ void ConfigureSystem::ReadSystemSettings() {
     // set the country code
     country_code = cfg->GetCountryCode();
     ui->combo_country->setCurrentIndex(ui->combo_country->findData(country_code));
-    CheckCountryValid(country_code);
 
     // set whether system setup is needed
     system_setup = cfg->IsSystemSetupNeeded();
@@ -391,16 +410,15 @@ void ConfigureSystem::ReadSystemSettings() {
     play_coin = Service::PTM::Module::GetPlayCoins();
     ui->spinBox_play_coins->setValue(play_coin);
 
+    // set firmware download region
+    ui->combo_download_region->setCurrentIndex(static_cast<int>(cfg->GetRegionValue()));
+
     // Refresh secure data status
     RefreshSecureDataStatus();
 }
 
 void ConfigureSystem::ApplyConfiguration() {
     if (enabled) {
-        ConfigurationShared::ApplyPerGameSetting(&Settings::values.region_value,
-                                                 ui->region_combobox,
-                                                 [](s32 index) { return index - 1; });
-
         bool modified = false;
 
         // apply username
@@ -591,51 +609,6 @@ void ConfigureSystem::RefreshMAC() {
     ui->label_mac->setText(tr("MAC: %1").arg(QString::fromStdString(mac_address)));
 }
 
-void ConfigureSystem::UnlinkConsole() {
-    QMessageBox::StandardButton reply;
-    QString warning_text =
-        tr("This action will unlink your real console from Azahar, with the following "
-           "consequences:<br><ul><li>Your OTP, SecureInfo and LocalFriendCodeSeed will be removed "
-           "from Azahar.</li><li>Your friend list will reset and you will be logged out of your "
-           "NNID/PNID account.</li><li>System files and eshop titles obtained through Azahar will "
-           "become inaccessible until the same console is linked again (save data will not be "
-           "lost).</li></ul><br>Continue?");
-    reply =
-        QMessageBox::warning(this, tr("Warning"), warning_text, QMessageBox::No | QMessageBox::Yes);
-    if (reply == QMessageBox::No) {
-        return;
-    }
-
-    HW::UniqueData::UnlinkConsole();
-    RefreshSecureDataStatus();
-}
-
-void ConfigureSystem::CheckCountryValid(u8 country) {
-    // TODO(PabloMK7): Make this per-game compatible
-    if (!Settings::IsConfiguringGlobal())
-        return;
-
-    s32 region = ui->region_combobox->currentIndex() - 1;
-    QString label_text;
-
-    if (region != Settings::REGION_VALUE_AUTO_SELECT &&
-        !cfg->IsValidRegionCountry(static_cast<u32>(region), country)) {
-        label_text = tr("Invalid country for configured region");
-    }
-    if (HW::UniqueData::GetSecureInfoA().IsValid()) {
-        region = static_cast<u32>(cfg->GetRegionValue(true));
-        if (!cfg->IsValidRegionCountry(static_cast<u32>(region), country)) {
-            if (!label_text.isEmpty()) {
-                label_text += QString::fromStdString("\n");
-            }
-            label_text += tr("Invalid country for console unique data");
-        }
-    }
-
-    ui->label_country_invalid->setText(label_text);
-    ui->label_country_invalid->setVisible(!label_text.isEmpty());
-}
-
 void ConfigureSystem::InstallSecureData(const std::string& from_path, const std::string& to_path) {
     std::string from =
         FileUtil::SanitizePath(from_path, FileUtil::DirectorySeparator::PlatformDefault);
@@ -646,9 +619,24 @@ void ConfigureSystem::InstallSecureData(const std::string& from_path, const std:
     FileUtil::CreateFullPath(to);
     FileUtil::Copy(from, to);
     HW::UniqueData::InvalidateSecureData();
+    cfg->InvalidateSecureData();
     RefreshSecureDataStatus();
 }
 
+void ConfigureSystem::InstallCTCert(const std::string& from_path) {
+    std::string from =
+        FileUtil::SanitizePath(from_path, FileUtil::DirectorySeparator::PlatformDefault);
+    std::string to = FileUtil::SanitizePath(Service::AM::Module::GetCTCertPath(),
+                                            FileUtil::DirectorySeparator::PlatformDefault);
+    if (from.empty() || from == to) {
+        return;
+    }
+    FileUtil::Copy(from, to);
+    RefreshSecureDataStatus();
+}
+
+// todotodo
+#ifdef todotodo
 void ConfigureSystem::RefreshSecureDataStatus() {
     auto status_to_str = [](HW::UniqueData::SecureDataLoadStatus status) {
         switch (status) {
@@ -676,16 +664,38 @@ void ConfigureSystem::RefreshSecureDataStatus() {
         tr((std::string("Status: ") + status_to_str(HW::UniqueData::LoadOTP())).c_str()));
     ui->label_movable_status->setText(
         tr((std::string("Status: ") + status_to_str(HW::UniqueData::LoadMovable())).c_str()));
-
-    if (HW::UniqueData::IsFullConsoleLinked()) {
-        ui->linked_console->setVisible(true);
-        ui->button_otp->setEnabled(false);
-        ui->button_secure_info->setEnabled(false);
-        ui->button_friend_code_seed->setEnabled(false);
-    } else {
-        ui->linked_console->setVisible(false);
-    }
 }
+#endif
+
+//--
+void ConfigureSystem::RefreshSecureDataStatus() {
+    auto status_to_str = [](Service::CFG::SecureDataLoadStatus status) {
+        switch (status) {
+        case Service::CFG::SecureDataLoadStatus::Loaded:
+            return "Loaded";
+        case Service::CFG::SecureDataLoadStatus::NotFound:
+            return "Not Found";
+        case Service::CFG::SecureDataLoadStatus::Invalid:
+            return "Invalid";
+        case Service::CFG::SecureDataLoadStatus::IOError:
+            return "IO Error";
+        default:
+            return "";
+        }
+    };
+
+    Service::AM::CTCert ct_cert;
+
+    ui->label_secure_info_status->setText(
+        tr((std::string("Status: ") + status_to_str(cfg->LoadSecureInfoAFile())).c_str()));
+    ui->label_friend_code_seed_status->setText(
+        tr((std::string("Status: ") + status_to_str(cfg->LoadLocalFriendCodeSeedBFile())).c_str()));
+    ui->label_ct_cert_status->setText(
+        tr((std::string("Status: ") + status_to_str(static_cast<Service::CFG::SecureDataLoadStatus>(
+                                          Service::AM::Module::LoadCTCertFile(ct_cert))))
+               .c_str()));
+}
+//--
 
 void ConfigureSystem::RetranslateUI() {
     ui->retranslateUi(this);
@@ -698,7 +708,6 @@ void ConfigureSystem::SetupPerGameUI() {
         ui->toggle_lle_applets->setEnabled(Settings::values.lle_applets.UsingGlobal());
         ui->enable_required_online_lle_modules->setEnabled(
             Settings::values.enable_required_online_lle_modules.UsingGlobal());
-        ui->region_combobox->setEnabled(Settings::values.region_value.UsingGlobal());
         return;
     }
 
@@ -710,7 +719,6 @@ void ConfigureSystem::SetupPerGameUI() {
     ui->label_init_ticks_type->setVisible(false);
     ui->label_init_ticks_value->setVisible(false);
     ui->label_console_id->setVisible(false);
-    ui->label_mac->setVisible(false);
     ui->label_sound->setVisible(false);
     ui->label_language->setVisible(false);
     ui->label_country->setVisible(false);
@@ -732,7 +740,6 @@ void ConfigureSystem::SetupPerGameUI() {
     ui->edit_init_ticks_value->setVisible(false);
     ui->toggle_system_setup->setVisible(false);
     ui->button_regenerate_console_id->setVisible(false);
-    ui->button_regenerate_mac->setVisible(false);
     // Apps can change the state of the plugin loader, so plugins load
     // to a chainloaded app with specific parameters. Don't allow
     // the plugin loader state to be configured per-game as it may
@@ -740,7 +747,9 @@ void ConfigureSystem::SetupPerGameUI() {
     ui->label_plugin_loader->setVisible(false);
     ui->plugin_loader->setVisible(false);
     ui->allow_plugin_loader->setVisible(false);
-    ui->group_real_console_unique_data->setVisible(false);
+    // Disable the system firmware downloader.
+    ui->label_nus_download->setVisible(false);
+    ui->body_nus_download->setVisible(false);
 
     ConfigurationShared::SetColoredTristate(ui->toggle_new_3ds, Settings::values.is_new_3ds,
                                             is_new_3ds);
@@ -749,7 +758,45 @@ void ConfigureSystem::SetupPerGameUI() {
     ConfigurationShared::SetColoredTristate(ui->enable_required_online_lle_modules,
                                             Settings::values.enable_required_online_lle_modules,
                                             required_online_lle_modules);
-    ConfigurationShared::SetColoredComboBox(
-        ui->region_combobox, ui->region_label,
-        static_cast<u32>(Settings::values.region_value.GetValue(true) + 1));
+}
+
+void ConfigureSystem::DownloadFromNUS() {
+    ui->button_start_download->setEnabled(false);
+
+    const auto mode =
+        static_cast<Core::SystemTitleSet>(1 << ui->combo_download_set->currentIndex());
+    const auto region = static_cast<u32>(ui->combo_download_region->currentIndex());
+    const std::vector<u64> titles = Core::GetSystemTitleIds(mode, region);
+
+    QProgressDialog progress(tr("Downloading files..."), tr("Cancel"), 0,
+                             static_cast<int>(titles.size()), this);
+    progress.setWindowModality(Qt::WindowModal);
+
+    QFutureWatcher<void> future_watcher;
+    QObject::connect(&future_watcher, &QFutureWatcher<void>::finished, &progress,
+                     &QProgressDialog::reset);
+    QObject::connect(&progress, &QProgressDialog::canceled, &future_watcher,
+                     &QFutureWatcher<void>::cancel);
+    QObject::connect(&future_watcher, &QFutureWatcher<void>::progressValueChanged, &progress,
+                     &QProgressDialog::setValue);
+
+    auto failed = false;
+    const auto download_title = [&future_watcher, &failed](const u64& title_id) {
+        if (Service::AM::InstallFromNus(title_id) != Service::AM::InstallStatus::Success) {
+            failed = true;
+            future_watcher.cancel();
+        }
+    };
+
+    future_watcher.setFuture(QtConcurrent::map(titles, download_title));
+    progress.exec();
+    future_watcher.waitForFinished();
+
+    if (failed) {
+        QMessageBox::critical(this, tr("Azahar"), tr("Downloading system files failed."));
+    } else if (!future_watcher.isCanceled()) {
+        QMessageBox::information(this, tr("Azahar"), tr("Successfully downloaded system files."));
+    }
+
+    ui->button_start_download->setEnabled(true);
 }

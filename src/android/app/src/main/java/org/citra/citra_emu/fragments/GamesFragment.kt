@@ -45,7 +45,7 @@ class GamesFragment : Fragment() {
 
     private val gamesViewModel: GamesViewModel by activityViewModels()
     private val homeViewModel: HomeViewModel by activityViewModels()
-    private var show3DSFileWarning: Boolean = true
+    private var show3DSFileWarning: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

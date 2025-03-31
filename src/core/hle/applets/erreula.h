@@ -54,7 +54,8 @@ private:
     std::shared_ptr<Kernel::SharedMemory> framebuffer_memory;
 
     /// Parameter received by the applet on start.
-    ErrEulaParam param{};
+//    ErrEulaParam param{};
+    std::vector<u8> startup_param;
 };
 
 } // namespace HLE::Applets

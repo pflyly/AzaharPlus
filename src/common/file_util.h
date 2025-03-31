@@ -386,7 +386,15 @@ public:
     [[nodiscard]] size_t ReadSpan(std::span<T> data) {
         static_assert(std::is_trivially_copyable_v<T>, "Data type must be trivially copyable.");
 
+#ifdef todotodo
         return ReadImpl(data.data(), data.size(), sizeof(T));
+#else
+        if (!IsOpen()) {
+            return 0;
+        }
+
+        return std::fread(data.data(), sizeof(T), data.size(), m_file);
+#endif
     }
 
     /**
@@ -408,7 +416,15 @@ public:
     [[nodiscard]] size_t WriteSpan(std::span<const T> data) {
         static_assert(std::is_trivially_copyable_v<T>, "Data type must be trivially copyable.");
 
+#ifdef todotodo
         return WriteImpl(data.data(), data.size(), sizeof(T));
+#else
+        if (!IsOpen()) {
+            return 0;
+        }
+
+        return std::fwrite(data.data(), sizeof(T), data.size(), m_file);
+#endif
     }
 
     [[nodiscard]] bool IsOpen() const {

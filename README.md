@@ -1,3 +1,13 @@
+<b>AzaharPlus</b> is a fork of the Azahar 3DS emulator that restores some features.
+
+Each version is the same as the corresponding version of Azahar exept for these features:
+- Support of 3DS files. If a file works with earlier Citra forks, it works with AzaharPlus.
+- Ability to download system files from official servers. No need for an actual 3DS.
+
+Below is the readme from Azahar, unchanged.
+
+---
+
 ![Azahar Emulator](https://azahar-emu.org/resources/images/logo/azahar-name-and-logo.svg)
 
 ![GitHub Release](https://img.shields.io/github/v/release/azahar-emu/azahar?label=Current%20Release)

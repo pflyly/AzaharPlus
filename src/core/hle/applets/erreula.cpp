@@ -44,12 +44,22 @@ Result ErrEula::ReceiveParameterImpl(const Service::APT::MessageParameter& param
 }
 
 Result ErrEula::Start(const Service::APT::MessageParameter& parameter) {
+#ifdef todotodo
     memcpy(&param, parameter.buffer.data(), std::min(parameter.buffer.size(), sizeof(param)));
 
     // Do something here, like showing error codes, or prompting for EULA agreement.
     if (param.type == DisplayType::Agree) {
         param.result = 1;
     }
+#else
+    startup_param = parameter.buffer;
+#endif
+
+//--
+    // TODO(Subv): Set the expected fields in the response buffer before resending it to the
+    // application.
+    // TODO(Subv): Reverse the parameter format for the ErrEula applet
+//--
 
     // Let the application know that we're closing.
     Finalize();
@@ -57,8 +67,13 @@ Result ErrEula::Start(const Service::APT::MessageParameter& parameter) {
 }
 
 Result ErrEula::Finalize() {
+#ifdef todotodo
     std::vector<u8> buffer(sizeof(param));
     memcpy(buffer.data(), &param, buffer.size());
+#else
+    std::vector<u8> buffer(startup_param.size());
+    std::fill(buffer.begin(), buffer.end(), 0);
+#endif
     CloseApplet(nullptr, buffer);
     return ResultSuccess;
 }

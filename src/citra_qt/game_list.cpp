@@ -1039,7 +1039,7 @@ void GameList::LoadInterfaceLayout() {
 }
 
 const QStringList GameList::supported_file_extensions = {
-    QStringLiteral("3dsx"), QStringLiteral("elf"), QStringLiteral("axf"),
+    QStringLiteral("3ds"), QStringLiteral("3dsx"), QStringLiteral("elf"), QStringLiteral("axf"),
     QStringLiteral("cci"),  QStringLiteral("cxi"), QStringLiteral("app")};
 
 void GameList::RefreshGameDirectory() {

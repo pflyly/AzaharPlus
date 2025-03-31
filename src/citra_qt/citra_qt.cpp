@@ -1250,11 +1250,17 @@ bool GMainWindow::LoadROM(const QString& filename) {
             break;
 
         case Core::System::ResultStatus::ErrorLoader_ErrorEncrypted: {
-            QMessageBox::critical(this, tr("App Encrypted"),
-                                  tr("Your app is encrypted. <br/>"
-                                     "<a "
-                                     "href='https://azahar-emu.org/blog/game-loading-changes/'>"
-                                     "Please check our blog for more info.</a>"));
+            QMessageBox::critical(
+                this, tr("ROM Encrypted"),
+                tr("Your ROM is encrypted. <br/>Please follow the guides to redump your "
+                   "<a "
+                   "href='https://web.archive.org/web/20240304210021/https://citra-emu.org/wiki/"
+                   "dumping-game-cartridges/'>game "
+                   "cartridges</a> or "
+                   "<a "
+                   "href='https://web.archive.org/web/20240304210011/https://citra-emu.org/wiki/"
+                   "dumping-installed-titles/'>installed "
+                   "titles</a>."));
             break;
         }
         case Core::System::ResultStatus::ErrorLoader_ErrorInvalidFormat:
@@ -2271,11 +2277,10 @@ void GMainWindow::OnCIAInstallReport(Service::AM::InstallStatus status, QString 
         QMessageBox::critical(this, tr("Invalid File"), tr("%1 is not a valid CIA").arg(filename));
         break;
     case Service::AM::InstallStatus::ErrorEncrypted:
-        QMessageBox::critical(this, tr("CIA Encrypted"),
-                              tr("Your CIA file is encrypted.<br/>"
-                                 "<a "
-                                 "href='https://azahar-emu.org/blog/game-loading-changes/'>"
-                                 "Please check our blog for more info.</a>"));
+        QMessageBox::critical(this, tr("Encrypted File"),
+                              tr("%1 must be decrypted "
+                                 "before being used with Azahar. A real 3DS is required.")
+                                  .arg(filename));
         break;
     case Service::AM::InstallStatus::ErrorFileNotFound:
         QMessageBox::critical(this, tr("Unable to find File"),
@@ -3421,8 +3426,8 @@ static bool IsSingleFileDropEvent(const QMimeData* mime) {
     return mime->hasUrls() && mime->urls().length() == 1;
 }
 
-static const std::array<std::string, 8> AcceptedExtensions = {"cci", "cxi", "bin", "3dsx",
-                                                              "app", "elf", "axf"};
+static const std::array<std::string, 8> AcceptedExtensions = {"cci",  "3ds", "cxi", "bin",
+                                                              "3dsx", "app", "elf", "axf"};
 
 static bool IsCorrectFileExtension(const QMimeData* mime) {
     const QString& filename = mime->urls().at(0).toLocalFile();

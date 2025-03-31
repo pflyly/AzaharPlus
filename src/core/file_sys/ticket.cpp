@@ -64,7 +64,9 @@ Loader::ResultStatus Ticket::DoTitlekeyFixup() {
 
 Loader::ResultStatus Ticket::Load(std::span<const u8> file_data, std::size_t offset) {
     std::size_t total_size = static_cast<std::size_t>(file_data.size() - offset);
+/* todotodo
     serialized_size = total_size;
+*/
     if (total_size < sizeof(u32))
         return Loader::ResultStatus::Error;
 
@@ -88,6 +90,7 @@ Loader::ResultStatus Ticket::Load(std::span<const u8> file_data, std::size_t off
     std::memcpy(ticket_signature.data(), &file_data[offset + sizeof(u32)], signature_size);
     std::memcpy(&ticket_body, &file_data[offset + body_start], sizeof(Body));
 
+/* todotodo
     std::size_t content_index_start = body_end;
     if (total_size < content_index_start + (2 * sizeof(u32)))
         return Loader::ResultStatus::Error;
@@ -102,6 +105,8 @@ Loader::ResultStatus Ticket::Load(std::span<const u8> file_data, std::size_t off
         return Loader::ResultStatus::Error;
     content_index.resize(content_index_size);
     std::memcpy(content_index.data(), &file_data[offset + content_index_start], content_index_size);
+
+*/
 
     return Loader::ResultStatus::Success;
 }

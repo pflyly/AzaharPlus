@@ -464,6 +464,17 @@ void Java_org_citra_citra_1emu_NativeLibrary_uninstallSystemFiles(JNIEnv* env,
                                       : Core::SystemTitleSet::New3ds);
 }
 
+jobject Java_org_citra_citra_1emu_NativeLibrary_downloadTitleFromNus([[maybe_unused]] JNIEnv* env,
+                                                                     [[maybe_unused]] jobject obj,
+                                                                     jlong title) {
+    [[maybe_unused]] const auto title_id = static_cast<u64>(title);
+    Service::AM::InstallStatus status = Service::AM::InstallFromNus(title_id);
+    if (status != Service::AM::InstallStatus::Success) {
+        return IDCache::GetJavaCiaInstallStatus(status);
+    }
+    return IDCache::GetJavaCiaInstallStatus(Service::AM::InstallStatus::Success);
+}
+
 [[maybe_unused]] static bool CheckKgslPresent() {
     constexpr auto KgslPath{"/dev/kgsl-3d0"};
 

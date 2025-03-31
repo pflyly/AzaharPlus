@@ -18,6 +18,7 @@ enum {
     NotInitialized = 101,
     AlreadyInitialized = 102,
     AcStatusDisconnected = 103,
+    ErrDesc103 = 103,
     ErrDesc104 = 104,
     Busy = 111,
     ErrDesc112 = 112,
@@ -317,6 +318,7 @@ enum {
     NotInitialized = 220501,       // 022-0501
     AlreadyInitialized = 220502,   // 022-0502
     AcStatusDisconnected = 225103, // 022-5103
+    ErrCode225103 = 225103,      // 022-5103
     ErrCode225104 = 225104,        // 022-5104
     Busy = 220511,                 // 022-0511
     ErrCode225112 = 225112,        // 022-5112

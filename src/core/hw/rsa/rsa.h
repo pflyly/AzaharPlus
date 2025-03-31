@@ -23,6 +23,8 @@ public:
 
     bool Verify(std::span<const u8> message, std::span<const u8> signature) const;
 
+    std::vector<u8> GetSignature(std::span<const u8> message) const;
+
     explicit operator bool() const {
         // TODO(B3N30): Maybe check if exponent and modulus are vailid
         return init;
@@ -68,4 +70,5 @@ const RsaSlot& GetTicketWrapSlot();
 const RsaSlot& GetSecureInfoSlot();
 const RsaSlot& GetLocalFriendCodeSeedSlot();
 
+std::vector<u8> CreateASN1Message(std::span<const u8> data);
 } // namespace HW::RSA

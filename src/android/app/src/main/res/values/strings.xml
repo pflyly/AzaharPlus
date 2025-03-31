@@ -2,7 +2,7 @@
 <resources>
 
     <!-- General application strings -->
-    <string name="app_name" translatable="false">Azahar</string>
+    <string name="app_name" translatable="false">AzaharPlus</string>
     <string name="app_disclaimer">This software will run applications for the Nintendo 3DS handheld game console. No game titles are included.\n\nBefore you can begin with emulating, please select a folder to store Azahar\'s user data in.\n\nWhat\'s this:\n<a href='https://web.archive.org/web/20240304193549/https://github.com/citra-emu/citra/wiki/Citra-Android-user-data-and-storage'>Wiki - Citra Android user data and storage</a></string>
     <string name="app_notification_channel_name" translatable="false">Azahar</string>
     <string name="app_notification_channel_id" translatable="false">Azahar</string>
@@ -148,12 +148,15 @@
 
     <!-- System files strings -->
     <string name="setup_system_files">System Files</string>
+    <string name="system_files">System Files</string>
     <string name="setup_system_files_description">Perform system file operations such as installing system files or booting the Home Menu</string>
+    <string name="system_files_description">Download system files to get Mii files, boot the HOME menu, and more</string>
     <string name="setup_tool_connect">Connect to Artic Setup Tool</string>
     <string name="setup_system_files_preamble"><![CDATA[Azahar needs console unique data and firmware files from a real console to be able to use some of its features. Such files and data can be set up with the <a href=https://github.com/azahar-emu/ArticSetupTool>Azahar Artic Setup Tool</a>.<br>Notes:<ul><li><b>This operation will install console unique data to Azahar, do not share your user or nand folders after performing the setup process!</b></li><li>While doing the setup process, Azahar will link to the console running the setup tool. You can unlink the console later from the System Files tab in the emulator options menu.</li><li>Do not go online with both Azahar and your 3DS console at the same time after setting up system files, as this could cause issues.</li><li>Old 3DS setup is needed for the New 3DS setup to work (setting up both is recommended).</li><li>Both setup modes will work regardless of the model of the console running the setup tool.</li></ul>]]></string>
     <string name="setup_system_files_detect">Fetching current system files status, please wait...</string>
     <string name="delete_system_files">Unlink Console Unique Data</string>
     <string name="delete_system_files_description"><![CDATA[This action will unlink your real console from Azahar, with the following consequences:<br><ul><li>Your OTP, SecureInfo and LocalFriendCodeSeed will be removed from Azahar.</li><li>Your friend list will reset and you will be logged out of your NNID/PNID account.</li><li>System files and eshop titles obtained through Azahar will become inaccessible until the same console is linked again using the setup tool (save data will not be lost).</li></ul><br>Continue?]]></string>
+    <string name="download_system_files">Download System Files</string>
     <string name="setup_system_files_o3ds">Old 3DS Setup</string>
     <string name="setup_system_files_n3ds">New 3DS Setup</string>
     <string name="setup_system_files_possible">Setup is possible.</string>
@@ -162,9 +165,25 @@
     <string name="setup_system_files_enter_address">Enter Artic Setup Tool address</string>
     <string name="setup_system_files_preparing">Preparing setup, please wait...</string>
     <string name="boot_home_menu">Boot the HOME Menu</string>
+    <string name="system_type">System Type</string>
+    <string name="download">Download</string>
+    <string name="keys_missing">Azahar is missing keys to download system files.</string>
+    <string name="how_to_get_keys"><![CDATA[<a href="https://web.archive.org/web/20240304203412/https://citra-emu.org/wiki/aes-keys/">How to get keys?</a>]]></string>
     <string name="show_home_apps">Show HOME menu apps in Applications list</string>
     <string name="run_system_setup">Run System Setup when the HOME Menu is launched</string>
+    <string name="system_type_minimal">Minimal</string>
+    <string name="system_type_old_3ds">Old 3DS</string>
+    <string name="system_type_new_3ds">New 3DS</string>
+    <string name="downloading_files">Downloading Files…</string>
+    <string name="downloading_files_description">Please do not close the app.</string>
+    <string name="download_failed">Download Failed</string>
+    <string name="download_failed_description">Please make sure you are connected to the internet and try again.</string>
+    <string name="download_success">Download Complete!</string>
+    <string name="download_cancelled">Download Cancelled</string>
+    <string name="download_cancelled_description">Please restart the download to prevent issues with having incomplete system files.</string>
     <string name="home_menu">HOME Menu</string>
+    <string name="home_menu_warning">System Files Warning</string>
+    <string name="home_menu_warning_description">Due to how slow Android\'s storage access framework is for accessing Azahar\'s files, downloading multiple versions of system files can dramatically slow down loading for applications, save states, and the Applications list. Only download the files that you require to avoid any issues with loading speeds.</string>
 
     <!-- Generic buttons (Shared with lots of stuff) -->
     <string name="generic_buttons">Buttons</string>

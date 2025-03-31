@@ -184,9 +184,11 @@ public:
             if (UISettings::values.game_list_icon_size.GetValue() !=
                 UISettings::GameListIconSize::NoIcon)
                 setData(GetDefaultIcon(large), Qt::DecorationRole);
+/* todotodo
             if (is_encrypted) {
                 setData(QObject::tr("Unsupported encrypted application"), TitleRole);
             }
+*/
             return;
         }
 

@@ -186,6 +186,8 @@ object NativeLibrary {
 
     external fun unlinkConsole()
 
+    external fun downloadTitleFromNus(title: Long): InstallStatus
+
     private var coreErrorAlertResult = false
     private val coreErrorAlertLock = Object()
 

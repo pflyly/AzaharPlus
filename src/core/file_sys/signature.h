@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "common/assert.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
 
