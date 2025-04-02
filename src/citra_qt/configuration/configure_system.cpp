@@ -1,4 +1,4 @@
-// Copyright Citra Emulator Project / Azahar Emulator Project
+// Copyright 2016 Citra Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
@@ -17,7 +17,6 @@
 #include "core/hle/service/cfg/cfg.h"
 #include "core/hle/service/ptm/ptm.h"
 #include "core/hw/aes/key.h"
-#include "core/hw/unique_data.h"
 #include "core/system_titles.h"
 #include "ui_configure_system.h"
 
@@ -237,7 +236,6 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
             &ConfigureSystem::UpdateInitTicks);
     connect(ui->button_regenerate_console_id, &QPushButton::clicked, this,
             &ConfigureSystem::RefreshConsoleID);
-    connect(ui->button_regenerate_mac, &QPushButton::clicked, this, &ConfigureSystem::RefreshMAC);
     connect(ui->button_start_download, &QPushButton::clicked, this,
             &ConfigureSystem::DownloadFromNUS);
 
@@ -247,11 +245,7 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
             this, tr("Select SecureInfo_A/B"), QString(),
             tr("SecureInfo_A/B (SecureInfo_A SecureInfo_B);;All Files (*.*)"));
         ui->button_secure_info->setEnabled(true);
-#ifdef todotodo
-        InstallSecureData(file_path_qtstr.toStdString(), HW::UniqueData::GetSecureInfoAPath());
-#else
         InstallSecureData(file_path_qtstr.toStdString(), cfg->GetSecureInfoAPath());
-#endif
     });
     connect(ui->button_friend_code_seed, &QPushButton::clicked, this, [this] {
         ui->button_friend_code_seed->setEnabled(false);
@@ -260,25 +254,6 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
                                          tr("LocalFriendCodeSeed_A/B (LocalFriendCodeSeed_A "
                                             "LocalFriendCodeSeed_B);;All Files (*.*)"));
         ui->button_friend_code_seed->setEnabled(true);
-#ifdef todotodo
-        InstallSecureData(file_path_qtstr.toStdString(),
-                          HW::UniqueData::GetLocalFriendCodeSeedBPath());
-    });
-    connect(ui->button_otp, &QPushButton::clicked, this, [this] {
-        ui->button_otp->setEnabled(false);
-        const QString file_path_qtstr =
-            QFileDialog::getOpenFileName(this, tr("Select encrypted OTP file"), QString(),
-                                         tr("Binary file (*.bin);;All Files (*.*)"));
-        ui->button_otp->setEnabled(true);
-        InstallSecureData(file_path_qtstr.toStdString(), HW::UniqueData::GetOTPPath());
-    });
-    connect(ui->button_movable, &QPushButton::clicked, this, [this] {
-        ui->button_movable->setEnabled(false);
-        const QString file_path_qtstr = QFileDialog::getOpenFileName(
-            this, tr("Select movable.sed"), QString(), tr("Sed file (*.sed);;All Files (*.*)"));
-        ui->button_movable->setEnabled(true);
-        InstallSecureData(file_path_qtstr.toStdString(), HW::UniqueData::GetMovablePath());
-#else
         InstallSecureData(file_path_qtstr.toStdString(), cfg->GetLocalFriendCodeSeedBPath());
     });
     connect(ui->button_ct_cert, &QPushButton::clicked, this, [this] {
@@ -287,7 +262,6 @@ ConfigureSystem::ConfigureSystem(Core::System& system_, QWidget* parent)
             this, tr("Select CTCert"), QString(), tr("CTCert.bin (*.bin);;All Files (*.*)"));
         ui->button_ct_cert->setEnabled(true);
         InstallCTCert(file_path_qtstr.toStdString());
-#endif
     });
 
     for (u8 i = 0; i < country_names.size(); i++) {
@@ -364,8 +338,6 @@ void ConfigureSystem::SetConfiguration() {
 
     ui->toggle_new_3ds->setChecked(Settings::values.is_new_3ds.GetValue());
     ui->toggle_lle_applets->setChecked(Settings::values.lle_applets.GetValue());
-    ui->enable_required_online_lle_modules->setChecked(
-        Settings::values.enable_required_online_lle_modules.GetValue());
     ui->plugin_loader->setChecked(Settings::values.plugin_loader_enabled.GetValue());
     ui->allow_plugin_loader->setChecked(Settings::values.allow_plugin_loader.GetValue());
 }
@@ -403,15 +375,13 @@ void ConfigureSystem::ReadSystemSettings() {
     u64 console_id = cfg->GetConsoleUniqueId();
     ui->label_console_id->setText(
         tr("Console ID: 0x%1").arg(QString::number(console_id, 16).toUpper()));
-    mac_address = cfg->GetMacAddress();
-    ui->label_mac->setText(tr("MAC: %1").arg(QString::fromStdString(mac_address)));
 
     // set play coin
     play_coin = Service::PTM::Module::GetPlayCoins();
     ui->spinBox_play_coins->setValue(play_coin);
 
     // set firmware download region
-    ui->combo_download_region->setCurrentIndex(static_cast<int>(cfg->GetRegionValue()));
+    ui->combo_download_region->setCurrentIndex(static_cast<int>(cfg->GetRegionValue(false)));
 
     // Refresh secure data status
     RefreshSecureDataStatus();
@@ -432,7 +402,7 @@ void ConfigureSystem::ApplyConfiguration() {
         s32 new_birthmonth = ui->combo_birthmonth->currentIndex() + 1;
         s32 new_birthday = ui->combo_birthday->currentIndex() + 1;
         if (birthmonth != new_birthmonth || birthday != new_birthday) {
-            cfg->SetBirthday(static_cast<u8>(new_birthmonth), static_cast<u8>(new_birthday));
+            cfg->SetBirthday(new_birthmonth, new_birthday);
             modified = true;
         }
 
@@ -479,9 +449,6 @@ void ConfigureSystem::ApplyConfiguration() {
                                                  is_new_3ds);
         ConfigurationShared::ApplyPerGameSetting(&Settings::values.lle_applets,
                                                  ui->toggle_lle_applets, lle_applets);
-        ConfigurationShared::ApplyPerGameSetting(
-            &Settings::values.enable_required_online_lle_modules,
-            ui->enable_required_online_lle_modules, required_online_lle_modules);
 
         Settings::values.init_clock =
             static_cast<Settings::InitClock>(ui->combo_init_clock->currentIndex());
@@ -504,14 +471,9 @@ void ConfigureSystem::ApplyConfiguration() {
         Settings::values.init_time_offset = time_offset_days + time_offset_time;
         Settings::values.is_new_3ds = ui->toggle_new_3ds->isChecked();
         Settings::values.lle_applets = ui->toggle_lle_applets->isChecked();
-        Settings::values.enable_required_online_lle_modules =
-            ui->enable_required_online_lle_modules->isChecked();
 
         Settings::values.plugin_loader_enabled.SetValue(ui->plugin_loader->isChecked());
         Settings::values.allow_plugin_loader.SetValue(ui->allow_plugin_loader->isChecked());
-
-        cfg->GetMacAddress() = mac_address;
-        cfg->SaveMacAddress();
     }
 }
 
@@ -576,11 +538,10 @@ void ConfigureSystem::UpdateInitTicks(int init_ticks_type) {
 
 void ConfigureSystem::RefreshConsoleID() {
     QMessageBox::StandardButton reply;
-    QString warning_text =
-        tr("This will replace your current virtual 3DS console ID with a new one. "
-           "Your current virtual 3DS console ID will not be recoverable. "
-           "This might have unexpected effects in applications. This might fail "
-           "if you use an outdated config save. Continue?");
+    QString warning_text = tr("This will replace your current virtual 3DS with a new one. "
+                              "Your current virtual 3DS will not be recoverable. "
+                              "This might have unexpected effects in games. This might fail, "
+                              "if you use an outdated config savegame. Continue?");
     reply = QMessageBox::critical(this, tr("Warning"), warning_text,
                                   QMessageBox::No | QMessageBox::Yes);
     if (reply == QMessageBox::No) {
@@ -594,21 +555,6 @@ void ConfigureSystem::RefreshConsoleID() {
         tr("Console ID: 0x%1").arg(QString::number(console_id, 16).toUpper()));
 }
 
-void ConfigureSystem::RefreshMAC() {
-    QMessageBox::StandardButton reply;
-    QString warning_text = tr("This will replace your current MAC address with a new one. "
-                              "It is not recommended to do this if you got the MAC address from "
-                              "your real console using the setup tool. Continue?");
-    reply =
-        QMessageBox::warning(this, tr("Warning"), warning_text, QMessageBox::No | QMessageBox::Yes);
-    if (reply == QMessageBox::No) {
-        return;
-    }
-
-    mac_address = Service::CFG::GenerateRandomMAC();
-    ui->label_mac->setText(tr("MAC: %1").arg(QString::fromStdString(mac_address)));
-}
-
 void ConfigureSystem::InstallSecureData(const std::string& from_path, const std::string& to_path) {
     std::string from =
         FileUtil::SanitizePath(from_path, FileUtil::DirectorySeparator::PlatformDefault);
@@ -616,9 +562,8 @@ void ConfigureSystem::InstallSecureData(const std::string& from_path, const std:
     if (from.empty() || from == to) {
         return;
     }
-    FileUtil::CreateFullPath(to);
+    FileUtil::CreateFullPath(to_path);
     FileUtil::Copy(from, to);
-    HW::UniqueData::InvalidateSecureData();
     cfg->InvalidateSecureData();
     RefreshSecureDataStatus();
 }
@@ -635,39 +580,6 @@ void ConfigureSystem::InstallCTCert(const std::string& from_path) {
     RefreshSecureDataStatus();
 }
 
-// todotodo
-#ifdef todotodo
-void ConfigureSystem::RefreshSecureDataStatus() {
-    auto status_to_str = [](HW::UniqueData::SecureDataLoadStatus status) {
-        switch (status) {
-        case HW::UniqueData::SecureDataLoadStatus::Loaded:
-            return "Loaded";
-        case HW::UniqueData::SecureDataLoadStatus::InvalidSignature:
-            return "Loaded (Invalid Signature)";
-        case HW::UniqueData::SecureDataLoadStatus::NotFound:
-            return "Not Found";
-        case HW::UniqueData::SecureDataLoadStatus::Invalid:
-            return "Invalid";
-        case HW::UniqueData::SecureDataLoadStatus::IOError:
-            return "IO Error";
-        default:
-            return "";
-        }
-    };
-
-    ui->label_secure_info_status->setText(
-        tr((std::string("Status: ") + status_to_str(HW::UniqueData::LoadSecureInfoA())).c_str()));
-    ui->label_friend_code_seed_status->setText(
-        tr((std::string("Status: ") + status_to_str(HW::UniqueData::LoadLocalFriendCodeSeedB()))
-               .c_str()));
-    ui->label_otp_status->setText(
-        tr((std::string("Status: ") + status_to_str(HW::UniqueData::LoadOTP())).c_str()));
-    ui->label_movable_status->setText(
-        tr((std::string("Status: ") + status_to_str(HW::UniqueData::LoadMovable())).c_str()));
-}
-#endif
-
-//--
 void ConfigureSystem::RefreshSecureDataStatus() {
     auto status_to_str = [](Service::CFG::SecureDataLoadStatus status) {
         switch (status) {
@@ -695,7 +607,6 @@ void ConfigureSystem::RefreshSecureDataStatus() {
                                           Service::AM::Module::LoadCTCertFile(ct_cert))))
                .c_str()));
 }
-//--
 
 void ConfigureSystem::RetranslateUI() {
     ui->retranslateUi(this);
@@ -706,8 +617,6 @@ void ConfigureSystem::SetupPerGameUI() {
     if (Settings::IsConfiguringGlobal()) {
         ui->toggle_new_3ds->setEnabled(Settings::values.is_new_3ds.UsingGlobal());
         ui->toggle_lle_applets->setEnabled(Settings::values.lle_applets.UsingGlobal());
-        ui->enable_required_online_lle_modules->setEnabled(
-            Settings::values.enable_required_online_lle_modules.UsingGlobal());
         return;
     }
 
@@ -755,9 +664,6 @@ void ConfigureSystem::SetupPerGameUI() {
                                             is_new_3ds);
     ConfigurationShared::SetColoredTristate(ui->toggle_lle_applets, Settings::values.lle_applets,
                                             lle_applets);
-    ConfigurationShared::SetColoredTristate(ui->enable_required_online_lle_modules,
-                                            Settings::values.enable_required_online_lle_modules,
-                                            required_online_lle_modules);
 }
 
 void ConfigureSystem::DownloadFromNUS() {
