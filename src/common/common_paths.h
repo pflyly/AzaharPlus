@@ -23,7 +23,7 @@
 #define EMU_DATA_DIR USER_DIR
 #else
 #ifdef _WIN32
-#define EMU_DATA_DIR "Azahar"
+#define EMU_DATA_DIR "AzaharPlus"
 #define LEGACY_CITRA_DATA_DIR "Citra"
 #define LEGACY_LIME3DS_DATA_DIR "Lime3DS"
 #elif defined(__APPLE__)
