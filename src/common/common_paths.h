@@ -38,11 +38,11 @@
 #define LEGACY_LIME3DS_APPLE_DATA_DIR "Library" DIR_SEP "Application Support" DIR_SEP "Lime3DS"
 #endif
 // For compatibility with XDG paths.
-#define EMU_DATA_DIR "azahar-emu"
+#define EMU_DATA_DIR "azaharplus-emu"
 #define LEGACY_CITRA_DATA_DIR "citra-emu"
 #define LEGACY_LIME3DS_DATA_DIR "lime3ds-emu"
 #else
-#define EMU_DATA_DIR "azahar-emu"
+#define EMU_DATA_DIR "azaharplus-emu"
 #define LEGACY_CITRA_DATA_DIR "citra-emu"
 #define LEGACY_LIME3DS_DATA_DIR "lime3ds-emu"
 #endif
