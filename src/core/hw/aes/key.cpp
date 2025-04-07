@@ -32,10 +32,10 @@ namespace {
 // On a real 3DS the generation for the normal key is hardware based, and thus the constant can't
 // get dumped. Generated normal keys are also not accessible on a 3DS. The used formula for
 // calculating the constant is a software implementation of what the hardware generator does.
-//AESKey generator_constant;
+AESKey generator_constant;
 
-constexpr AESKey generator_constant = {{0x1F, 0xF9, 0xE9, 0xAA, 0xC5, 0xFE, 0x04, 0x08, 0x02, 0x45,
-                                        0x91, 0xDC, 0x5D, 0x52, 0x76, 0x8A}};
+//constexpr AESKey generator_constant = {{0x1F, 0xF9, 0xE9, 0xAA, 0xC5, 0xFE, 0x04, 0x08, 0x02, 0x45,
+//                                        0x91, 0xDC, 0x5D, 0x52, 0x76, 0x8A}};
 
 AESKey HexToKey(const std::string& hex) {
     if (hex.size() < 32) {
@@ -217,7 +217,7 @@ void LoadBootromKeys() {
     }
 }
 
-#ifdef todotodo
+#ifndef todotodo
 void LoadPresetKeys() {
     auto s = GetKeysStream();
 
