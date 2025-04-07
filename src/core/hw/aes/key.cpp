@@ -217,7 +217,6 @@ void LoadBootromKeys() {
     }
 }
 
-#ifndef todotodo
 void LoadPresetKeys() {
     auto s = GetKeysStream();
 
@@ -226,6 +225,8 @@ void LoadPresetKeys() {
     while (!s.eof()) {
         std::string line;
         std::getline(s, line);
+		
+	//	LOG_ERROR(HW_AES, "Dump key '{}'", line);
 
         // Ignore empty or commented lines.
         if (line.empty() || line.starts_with("#")) {
@@ -351,19 +352,8 @@ void LoadPresetKeys() {
         }
     }
 }
-#else
-void LoadPresetKeys() {
-/* key dumping code
-    auto s = GetKeysStream();
 
-    std::string mode = "";
-
-    while (!s.eof()) {
-        std::string line;
-        std::getline(s, line);
-        LOG_ERROR(HW_AES, "Secret key '{}'", line);
-    }
-*/
+void LoadPresetAesKeys() {
     const std::string filepath = FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir) + AES_KEYS;
     FileUtil::CreateFullPath(filepath); // Create path if not already created
 
@@ -467,7 +457,6 @@ void LoadPresetKeys() {
         }
     }
 }
-#endif
 
 } // namespace
 
@@ -615,7 +604,9 @@ void InitKeys(bool force) {
     initialized = true;
     HW::RSA::InitSlots();
     LoadBootromKeys();
+	generator_constant = HexToKey("1ff9e9aac5fe0408024591dc5d52768a");
     LoadPresetKeys();
+    LoadPresetAesKeys();
     movable_key.SetKeyX(key_slots[0x35].x);
     movable_cmac.SetKeyX(key_slots[0x35].x);
 
