@@ -1,1 +1,2 @@
-cmake --build . -- -j$(nproc)
+ninja
+strip -s bin/Release/*
