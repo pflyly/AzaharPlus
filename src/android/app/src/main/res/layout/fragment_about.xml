@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- FILE MODIFIED BY AzaharPlus APRIL 2025 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -44,6 +45,20 @@
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_citra_full" />
 
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="28dp" />
+
+			<com.google.android.material.textview.MaterialTextView
+				style="@style/TextAppearance.Material3.TitleMedium"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="24dp"
+				android:textAlignment="viewStart"
+				android:text="The Azahar logo is the property of PabloMK7 and angyartanddraw" />
+					
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
