@@ -6,6 +6,7 @@ Each version is the same as the corresponding version of Azahar exept for these 
 
 Below is the readme from Azahar, unchanged.
 
+The Azahar logo is the propertuy of PabloMK7 and angyartanddraw
 ---
 
 ![Azahar Emulator](https://azahar-emu.org/resources/images/logo/azahar-name-and-logo.svg)
