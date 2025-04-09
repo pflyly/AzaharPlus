@@ -113,8 +113,3 @@ Memory: 2GB of RAM. 4GB is recommended
 We share public roadmaps for upcoming releases in the form of GitHub milestones.
 
 You can find these at https://github.com/azahar-emu/azahar/milestones.
-
-# Join the conversation
-We have a community Discord server where you can chat about the project, keep up to date with the latest announcements, or coordinate emulator development.
-
-[![](https://dcbadge.vercel.app/api/server/4ZjMpAp3M6)](https://discord.gg/4ZjMpAp3M6)
