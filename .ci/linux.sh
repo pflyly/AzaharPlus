@@ -50,15 +50,9 @@ if [ "$TARGET" = "appimage" ]; then
     fi
     
     ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp \
-    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i AppDir-azahar -o azahar.AppImage || {
-        echo "Failed to create AppImage for AppDir-azahar.";
-        exit 1;
-    }
+    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i AppDir-azahar -o azahar.AppImage
     ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp \
-    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i AppDir-azahar-room -o azahar-room.AppImage || {
-        echo "Failed to create AppImage for AppDir-azahar-room.";
-        exit 1;
-    }
+    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i AppDir-azahar-room -o azahar-room.AppImage
     mv ./*.AppImage ./bundle
     ccache -s
 else
