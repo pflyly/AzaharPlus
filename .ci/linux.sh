@@ -37,7 +37,7 @@ if [ "$TARGET" = "appimage" ]; then
         exit 1
     fi
     
-    chmod +x ./uruntime
+    chmod a+x ./uruntime
 
     if [ ! -d "AppDir-azahar" ]; then
         echo "Directory AppDir-azahar does not exist."
@@ -49,10 +49,8 @@ if [ "$TARGET" = "appimage" ]; then
         exit 1
     fi
     
-    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp \
-    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i AppDir-azahar -o azahar.AppImage
-    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp \
-    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i AppDir-azahar-room -o azahar-room.AppImage
+    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar -o azahar.AppImage
+    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar-room -o azahar-room.AppImage
     mv ./*.AppImage ./bundle
     ccache -s
 else
