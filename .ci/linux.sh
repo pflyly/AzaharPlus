@@ -31,7 +31,7 @@ if [ "$TARGET" = "appimage" ]; then
     # TODO: Our AppImage environment currently uses an older ccache version without the verbose flag.
     # Use uruntime to generate dwarfs appimage
     rm -f ./bundle/*.AppImage
-    wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.4/uruntime-appimage-dwarfs-x86_64" ./uruntime
+    wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.4/uruntime-appimage-dwarfs-x86_64" -o ./uruntime
     if [ ! -f ./uruntime ]; then
         echo "Failed to download uruntime. Check the URL or network connection."
         exit 1
