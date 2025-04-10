@@ -31,26 +31,13 @@ if [ "$TARGET" = "appimage" ]; then
     # TODO: Our AppImage environment currently uses an older ccache version without the verbose flag.
     # Use uruntime to generate dwarfs appimage
     rm -f ./bundle/*.AppImage
-    wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.4/uruntime-appimage-dwarfs-x86_64" -o ./uruntime
-    if [ ! -f ./uruntime ]; then
-        echo "Failed to download uruntime. Check the URL or network connection."
-        exit 1
-    fi
-    
+    wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.4/uruntime-appimage-dwarfs-x86_64" -O ./uruntime 
     chmod a+x ./uruntime
-
-    if [ ! -d "AppDir-azahar" ]; then
-        echo "Directory AppDir-azahar does not exist."
-        exit 1
-    fi
-
-    if [ ! -d "AppDir-azahar-room" ]; then
-        echo "Directory AppDir-azahar-room does not exist."
-        exit 1
-    fi
+    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp \
+    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar -o azahar.AppImage
+    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp \
+    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar-room -o azahar-room.AppImage
     
-    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar -o azahar.AppImage
-    ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar-room -o azahar-room.AppImage
     mv ./*.AppImage ./bundle
     ccache -s
 else
