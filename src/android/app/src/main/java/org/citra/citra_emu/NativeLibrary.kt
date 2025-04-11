@@ -189,15 +189,6 @@ object NativeLibrary {
     external fun unlinkConsole()
 
 
-    /**
-     * Turbo speed.
-     */
-    external fun toggleTurboSpeed(enabled: Boolean)
-
-    external fun getTurboSpeedSlider(): Int
-
-    external fun setTurboSpeedSlider(value: Int)
-
     external fun downloadTitleFromNus(title: Long): InstallStatus
 
     private var coreErrorAlertResult = false
