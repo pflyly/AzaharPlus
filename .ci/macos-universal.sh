@@ -3,7 +3,6 @@
 ARTIFACTS_LIST=($ARTIFACTS)
 
 BUNDLE_DIR=build/bundle
-mkdir build
 
 # Set up the base artifact to combine into.
 BASE_ARTIFACT=${ARTIFACTS_LIST[0]}
