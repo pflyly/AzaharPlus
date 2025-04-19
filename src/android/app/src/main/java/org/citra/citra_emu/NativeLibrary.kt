@@ -188,6 +188,7 @@ object NativeLibrary {
 
     external fun unlinkConsole()
 
+
     external fun downloadTitleFromNus(title: Long): InstallStatus
 
     private var coreErrorAlertResult = false
@@ -777,6 +778,7 @@ object NativeLibrary {
         const val BUTTON_DEBUG = 781
         const val BUTTON_GPIO14 = 782
         const val BUTTON_SWAP = 800
+        const val BUTTON_TURBO = 801
     }
 
     /**

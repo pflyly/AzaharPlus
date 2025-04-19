@@ -32,11 +32,13 @@
 
     <string-array name="portraitLayouts">
         <item>@string/emulation_portrait_layout_top_full</item>
+        <item>@string/emulation_screen_layout_original</item>
         <item>@string/emulation_screen_layout_custom</item>
     </string-array>
 
     <integer-array name="portraitLayoutValues">
         <item>0</item>
+        <item>2</item>
         <item>1</item>
     </integer-array>
 
@@ -130,6 +132,7 @@
         <item>@string/controller_c</item>
         <item>@string/button_home</item>
         <item>@string/button_swap</item>
+        <item>@string/button_turbo</item>
     </string-array>
 
     <string-array name="cameraImageSourceNames">

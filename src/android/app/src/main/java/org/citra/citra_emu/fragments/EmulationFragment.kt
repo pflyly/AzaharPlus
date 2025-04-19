@@ -549,7 +549,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
                 val slot = i
                 var enableClick = isSaving
                 val text = if (slot == NativeLibrary.QUICKSAVE_SLOT) {
-                    enableClick = false
                     getString(R.string.emulation_quicksave_slot)
                 } else {
                     getString(R.string.emulation_empty_state_slot, slot)
@@ -558,11 +557,14 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
                 add(text).setEnabled(enableClick).setOnMenuItemClickListener {
                     if(isSaving) {
                         NativeLibrary.saveState(slot)
+                        Toast.makeText(context,
+                            getString(R.string.saving),
+                            Toast.LENGTH_SHORT).show()
                     } else {
                         NativeLibrary.loadState(slot)
                         binding.drawerLayout.close()
                         Toast.makeText(context,
-                            getString(R.string.quickload_loading),
+                            getString(R.string.loading),
                             Toast.LENGTH_SHORT).show()
                     }
                     true
@@ -573,8 +575,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
         savestates?.forEach {
             var enableClick = true
             val text = if(it.slot == NativeLibrary.QUICKSAVE_SLOT) {
-                // do not allow saving in quicksave slot
-                enableClick = !isSaving
                 getString(R.string.emulation_occupied_quicksave_slot, it.time)
             } else{
                 getString(R.string.emulation_occupied_state_slot, it.slot, it.time)
@@ -902,10 +902,10 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
         val layoutOptionMenuItem = when (IntSetting.PORTRAIT_SCREEN_LAYOUT.int) {
             PortraitScreenLayout.TOP_FULL_WIDTH.int ->
                 R.id.menu_portrait_layout_top_full
-
+            PortraitScreenLayout.ORIGINAL.int ->
+                R.id.menu_portrait_layout_original
             PortraitScreenLayout.CUSTOM_PORTRAIT_LAYOUT.int ->
                 R.id.menu_portrait_layout_custom
-
             else ->
                 R.id.menu_portrait_layout_top_full
 
@@ -917,6 +917,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
             when (it.itemId) {
                 R.id.menu_portrait_layout_top_full -> {
                     screenAdjustmentUtil.changePortraitOrientation(PortraitScreenLayout.TOP_FULL_WIDTH.int)
+                    true
+                }
+
+                R.id.menu_portrait_layout_original -> {
+                    screenAdjustmentUtil.changePortraitOrientation(PortraitScreenLayout.ORIGINAL.int)
                     true
                 }
 
@@ -949,12 +954,12 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
 
     private fun showToggleControlsDialog() {
         val editor = preferences.edit()
-        val enabledButtons = BooleanArray(15)
+        val enabledButtons = BooleanArray(16)
         enabledButtons.forEachIndexed { i: Int, _: Boolean ->
             // Buttons that are disabled by default
             var defaultValue = true
             when (i) {
-                6, 7, 12, 13, 14 -> defaultValue = false
+                6, 7, 12, 13, 14, 15 -> defaultValue = false
             }
             enabledButtons[i] = preferences.getBoolean("buttonToggle$i", defaultValue)
         }
@@ -1132,10 +1137,10 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
             .apply()
 
         val editor = preferences.edit()
-        for (i in 0 until 15) {
+        for (i in 0 until 16) {
             var defaultValue = true
             when (i) {
-                6, 7, 12, 13, 14 -> defaultValue = false
+                6, 7, 12, 13, 14, 15 -> defaultValue = false
             }
             editor.putBoolean("buttonToggle$i", defaultValue)
         }

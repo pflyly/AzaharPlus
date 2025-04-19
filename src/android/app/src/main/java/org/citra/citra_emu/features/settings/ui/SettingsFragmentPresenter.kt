@@ -237,6 +237,18 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     IntSetting.FRAME_LIMIT.defaultValue.toFloat()
                 )
             )
+            add(
+                SliderSetting(
+                    IntSetting.TURBO_SPEED,
+                    R.string.turbo_speed,
+                    R.string.turbo_speed_description,
+                    100,
+                    400,
+                    "%",
+                    IntSetting.TURBO_SPEED.key,
+                    IntSetting.TURBO_SPEED.defaultValue.toFloat()
+                )
+            )
         }
     }
 
@@ -526,7 +538,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                 DateTimeSetting(
                     StringSetting.INIT_TIME,
                     R.string.simulated_clock,
-                    R.string.init_time_description,
+                    R.string.simulated_clock_description,
                     StringSetting.INIT_TIME.key,
                     StringSetting.INIT_TIME.defaultValue
                 )
@@ -1078,6 +1090,18 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.array.smallScreenPositionValues,
                     IntSetting.SMALL_SCREEN_POSITION.key,
                     IntSetting.SMALL_SCREEN_POSITION.defaultValue
+                )
+            )
+            add(
+                SliderSetting(
+                    IntSetting.SCREEN_GAP,
+                    R.string.screen_gap,
+                    R.string.screen_gap_description,
+                    0,
+                    480,
+                    "px",
+                    IntSetting.SCREEN_GAP.key,
+                    IntSetting.SCREEN_GAP.defaultValue.toFloat()
                 )
             )
             add(

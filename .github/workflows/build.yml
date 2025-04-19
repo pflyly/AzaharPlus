@@ -51,11 +51,11 @@ jobs:
       - name: Build
         run: ./.ci/linux.sh
       - name: Pack
+        if: ${{ matrix.target == 'appimage' }}
         run: ./.ci/pack.sh
-        if: ${{ matrix.target == 'appimage' }}
       - name: Upload
-        uses: actions/upload-artifact@v4
         if: ${{ matrix.target == 'appimage' }}
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.OS }}-${{ env.TARGET }}
           path: artifacts/
