@@ -18,8 +18,6 @@ if [ "$GITHUB_REF_TYPE" == "tag" ]; then
 	export EXTRA_CMAKE_FLAGS=($EXTRA_CMAKE_FLAGS -DENABLE_QT_UPDATE_CHECKER=ON)
 fi
 
-
-mkdir build
 cd build
 cmake .. -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
