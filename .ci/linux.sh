@@ -32,13 +32,8 @@ strip -s bin/Release/*
 
 if [ "$TARGET" = "appimage" ]; then
     ninja bundle
-    # Determine the full revision name.
-    GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
-    GITREV="`git show -s --format='%h'`"
-    GITCOUNT="$(git rev-list --count HEAD)"
-    echo "$GITREV" >~/GITREV
-    echo "$(cat ~/GITREV)"
     # Use uruntime to generate dwarfs appimage
+    GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
     rm -f ./bundle/*.AppImage
     wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.6/uruntime-appimage-dwarfs-x86_64" -O ./uruntime 
     chmod a+x ./uruntime
