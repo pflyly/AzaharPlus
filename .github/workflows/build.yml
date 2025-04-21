@@ -47,6 +47,16 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.target }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.target }}-
+      - name: Fetch upstream and get final commit hash and count
+        run: |
+            git remote add upstream <https://github.com/AzaharPlus/AzaharPlus>
+            git fetch upstream
+            UPSTREAM_HASH=$(git rev-parse upstream/AzaharPlus)
+            echo "Final upstream commit hash: $UPSTREAM_HASH"
+            echo "GITREV=${UPSTREAM_HASH}" >> "${GITHUB_ENV}"
+            UPSTREAM_COUNT=$(git rev-list --count upstream/AzaharPlus)
+            echo "Upstream commits count: $UPSTREAM_COUNT"
+            echo "GITCOUNT=${UPSTREAM_COUNT}" >> "${GITHUB_ENV}"
       - name: Build
         run: ./.ci/linux.sh
       - name: Move AppImage to artifacts directory
@@ -60,18 +70,6 @@ jobs:
         with:
           name: ${{ env.OS }}-${{ env.TARGET }}
           path: artifacts/
-      - name: Check GITREV file
-        if: ${{ matrix.target == 'appimage' }}
-        run: |
-          cat ~/GITREV
-          echo "VERSION=$(cat ~/GITREV)" >> "${GITHUB_ENV}"
-      - name: Upload GITREV file
-        if: ${{ matrix.target == 'appimage' }}
-        uses: actions/upload-artifact@v4.6.1
-        with:
-          name: GITREV
-          path: ~/GITREV
-          overwrite: true
   macos:
     runs-on: ${{ (matrix.target == 'x86_64' && 'macos-13') || 'macos-14' }}
     strategy:
@@ -296,17 +294,10 @@ jobs:
        - uses: actions/download-artifact@v4.1.9
          with:
           name: linux-appimage
-       - uses: actions/download-artifact@v4.1.9
-         with:
-          name: GITREV
-       - name: Read GITREV and Get GITDATE
-         run: |
-          export GITREV="$(cat GITREV)"
-          echo "APPREV=${GITREV}" >> "${GITHUB_ENV}"
-          echo "GITDATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
        - name: Delete same tag release
          run: |
-          gh release delete "${{ env.APPREV }}-${{ env.GITDATE }}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag  -y
+          echo "GITDATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
+          gh release delete "${{ env.GITREV }}-${{ env.GITDATE }}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag  -y
           sleep 5
          env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
@@ -314,8 +305,8 @@ jobs:
        - name: Create release
          uses: softprops/action-gh-release@v2
          with:
-          name: "AzaharPlus Appimage Nightly Release: ${{ env.APPREV }}"
-          tag_name: "${{ env.APPREV }}-${{ env.GITDATE }}"
+          name: "AzaharPlus Appimage Nightly Release: ${{ env.GITREV }}"
+          tag_name: "${{ env.GITREV }}-${{ env.GITDATE }}"
           prerelease: false
           draft: false
           generate_release_notes: false
