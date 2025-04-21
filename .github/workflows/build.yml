@@ -48,6 +48,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.target }}-
       - name: Fetch upstream and get final commit hash and count
+        if: ${{ matrix.target == 'appimage' }}
         run: |
             git remote add upstream <https://github.com/AzaharPlus/AzaharPlus.git>
             git fetch upstream
