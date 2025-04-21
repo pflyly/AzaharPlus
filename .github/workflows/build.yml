@@ -49,7 +49,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.target }}-
       - name: Fetch upstream and get final commit hash and count
         run: |
-            git remote add upstream <https://github.com/AzaharPlus/AzaharPlus>
+            git remote add upstream <https://github.com/AzaharPlus/AzaharPlus.git>
             git fetch upstream
             UPSTREAM_HASH=$(git rev-parse upstream/AzaharPlus)
             echo "Final upstream commit hash: $UPSTREAM_HASH"
