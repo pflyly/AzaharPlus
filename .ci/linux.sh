@@ -35,6 +35,8 @@ if [ "$TARGET" = "appimage" ]; then
     # Determine the full revision name.
     GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
     GITREV="`git show -s --format='%h'`"
+    echo "$GITREV" >~/GITREV
+    echo "$(cat ~/GITREV)"
     # Use uruntime to generate dwarfs appimage
     rm -f ./bundle/*.AppImage
     wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.6/uruntime-appimage-dwarfs-x86_64" -O ./uruntime 
