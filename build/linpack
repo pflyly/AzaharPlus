@@ -1,3 +1,0 @@
-ninja bundle
-cp ../the_azahar_logo_is_the_property_of_PabloMK7_and_angyartanddraw.txt ./bundle/the_azahar_logo_is_the_property_of_PabloMK7_and_angyartanddraw.txt
-mv ./bundle ./azaharplus-VERSION-linux
