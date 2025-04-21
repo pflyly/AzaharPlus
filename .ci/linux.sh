@@ -5,9 +5,9 @@ if [ "$TARGET" = "appimage" ]; then
     GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
     git remote add upstream https://github.com/AzaharPlus/AzaharPlus.git
     git fetch upstream --no-recurse-submodules
-    UPSTREAM_HASH=$(git rev-parse upstream/AzaharPlus)
+    UPSTREAM_HASH=$(git rev-parse --short=9 upstream/AzaharPlus)
     echo "Final upstream commit hash: $UPSTREAM_HASH"
-    cho "GITREV=${UPSTREAM_HASH}" >> "${GITHUB_ENV}"
+    echo "GITREV=${UPSTREAM_HASH}" >> "${GITHUB_ENV}"
     UPSTREAM_COUNT=$(git rev-list --count upstream/AzaharPlus)
     echo "Upstream commits count: $UPSTREAM_COUNT"
     echo "GITCOUNT=${UPSTREAM_COUNT}" >> "${GITHUB_ENV}"
