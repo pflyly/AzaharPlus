@@ -270,4 +270,27 @@ jobs:
         run: brew install ccache ninja
       - name: Build
         run: ./.ci/ios.sh
-
+  
+  release:
+     runs-on: ubuntu-latest
+     needs: [linux]
+     permissions:
+        actions: read
+        security-events: write
+        contents: write
+     steps:
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: linux-appimage
+          
+       - name: Create release
+         uses: softprops/action-gh-release@v2
+         with:
+          name: "Appimage Release"
+          tag_name: "AppImage"
+          prerelease: false
+          draft: false
+          generate_release_notes: false
+          make_latest: true
+          files: |
+            *.AppImage*, *.zip, *.tar.*
