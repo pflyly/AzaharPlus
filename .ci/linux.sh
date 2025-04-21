@@ -7,9 +7,11 @@ if [ "$TARGET" = "appimage" ]; then
     git fetch upstream --no-recurse-submodules
     UPSTREAM_HASH=$(git rev-parse --short=9 upstream/AzaharPlus)
     echo "Final upstream commit hash: $UPSTREAM_HASH"
+    GITREV=${UPSTREAM_HASH}
     echo "GITREV=${UPSTREAM_HASH}" >> "${GITHUB_ENV}"
     UPSTREAM_COUNT=$(git rev-list --count upstream/AzaharPlus)
     echo "Upstream commits count: $UPSTREAM_COUNT"
+    GITCOUNT=${UPSTREAM_COUNT}
     echo "GITCOUNT=${UPSTREAM_COUNT}" >> "${GITHUB_ENV}"
     # Compile the AppImage we distribute with Clang.
     export EXTRA_CMAKE_FLAGS=(-DCMAKE_CXX_COMPILER=clang++
