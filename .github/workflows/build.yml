@@ -302,11 +302,11 @@ jobs:
        - name: Read GITREV and Get GITDATE
          run: |
           export GITREV="$(cat GITREV)"
-          echo "${GITREV}" >> "${GITHUB_ENV}"
+          echo "APPREV=${GITREV}" >> "${GITHUB_ENV}"
           echo "GITDATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
        - name: Delete same tag release
          run: |
-          gh release delete "${{ env.GITREV }}-${{ env.GITDATE }}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag  -y
+          gh release delete "${{ env.APPREV }}-${{ env.GITDATE }}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag  -y
           sleep 5
          env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
@@ -315,7 +315,7 @@ jobs:
          uses: softprops/action-gh-release@v2
          with:
           name: "AzaharPlus Appimage Nightly Release: ${{ env.GITREV }}"
-          tag_name: "${{ env.GITREV }}-${{ env.GITDATE }}"
+          tag_name: "${{ env.APPREV }}-${{ env.GITDATE }}"
           prerelease: false
           draft: false
           generate_release_notes: false
