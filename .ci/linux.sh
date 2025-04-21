@@ -34,6 +34,14 @@ if [ "$TARGET" = "appimage" ]; then
     ninja bundle
     # Use uruntime to generate dwarfs appimage
     GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
+    git remote add upstream https://github.com/AzaharPlus/AzaharPlus.git
+    git fetch upstream
+    UPSTREAM_HASH=$(git rev-parse upstream/AzaharPlus)
+    echo "Final upstream commit hash: $UPSTREAM_HASH"
+    cho "GITREV=${UPSTREAM_HASH}" >> "${GITHUB_ENV}"
+    UPSTREAM_COUNT=$(git rev-list --count upstream/AzaharPlus)
+    echo "Upstream commits count: $UPSTREAM_COUNT"
+    echo "GITCOUNT=${UPSTREAM_COUNT}" >> "${GITHUB_ENV}"
     rm -f ./bundle/*.AppImage
     wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.6/uruntime-appimage-dwarfs-x86_64" -O ./uruntime 
     chmod a+x ./uruntime
