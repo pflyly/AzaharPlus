@@ -32,13 +32,22 @@ strip -s bin/Release/*
 
 if [ "$TARGET" = "appimage" ]; then
     ninja bundle
-    
+    # Determine the full revision name.
+    GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
+    git remote add upstream https://github.com/AzaharPlus/AzaharPlus.git
+    git fetch upstream --no-recurse-submodules
+    GITREV=$(git rev-parse --short=9 upstream/AzaharPlus)
+    echo "Final upstream commit hash: $GITREV"    
+    echo "$GITREV" >~/GITREV
+    echo "$(cat ~/GITREV)"
+    GITCOUNT=$(git rev-list --count upstream/AzaharPlus)
+    echo "Upstream commits count: $GITCOUNT"
     # Use uruntime to generate dwarfs appimage
     rm -f ./bundle/*.AppImage
     wget -q "https://github.com/VHSgunzo/uruntime/releases/download/v0.3.6/uruntime-appimage-dwarfs-x86_64" -O ./uruntime 
     chmod a+x ./uruntime
     ./uruntime --appimage-mkdwarfs -f --set-owner 0 --set-group 0 --no-history --no-create-timestamp \
-    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar -o azahar.AppImage
+    --compression zstd:level=22 -S26 -B32 --header ./uruntime -i ./AppDir-azahar -o AzaharPlus-nightly-$GITDATE-$GITCOUNT-$GITREV.AppImage
     mv ./*.AppImage ./bundle
     
     ccache -s
