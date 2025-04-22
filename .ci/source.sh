@@ -1,8 +1,11 @@
 #!/bin/bash -ex
 
 GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
-GITREV="`git show -s --format='%h'`"
-REV_NAME="azahar-unified-source-${GITDATE}-${GITREV}"
+git remote add upstream https://github.com/AzaharPlus/AzaharPlus.git
+git fetch upstream --no-recurse-submodules
+GITREV=$(git rev-parse --short=7 upstream/AzaharPlus)
+GITCOUNT=$(git rev-list --count upstream/AzaharPlus)
+REV_NAME="azaharplus-unified-source-${GITDATE}-${GITCOUNT}-${GITREV}"
 
 COMPAT_LIST='dist/compatibility_list/compatibility_list.json'
 
