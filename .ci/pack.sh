@@ -2,8 +2,13 @@
 
 # Determine the full revision name.
 GITDATE="`git show -s --date=short --format='%ad' | sed 's/-//g'`"
-GITREV="`git show -s --format='%h'`"
-REV_NAME="azahar-$OS-$TARGET-$GITDATE-$GITREV"
+git remote add upstream https://github.com/AzaharPlus/AzaharPlus.git
+git fetch upstream --no-recurse-submodules
+GITREV=$(git rev-parse --short=7 upstream/AzaharPlus)
+echo "Final upstream commit hash: $GITREV"    
+GITCOUNT=$(git rev-list --count upstream/AzaharPlus)
+echo "Upstream commits count: $GITCOUNT"
+REV_NAME="azaharplus-nightly-$OS-$TARGET-$GITDATE-$GITCOUNT-$GITREV"
 
 # Determine the name of the release being built.
 if [ "$GITHUB_REF_TYPE" = "tag" ]; then
