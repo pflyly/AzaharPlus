@@ -1,14 +1,12 @@
 <h1 align="left">
   <br>
-  
-  <br>
-  <b>AzaharPlus Appimage Nightly Release</b>
+  <b>AzaharPlus Nightly Release</b>
   <br>
 </h1>
 
 [![GitHub Release](https://img.shields.io/github/v/release/pflyly/AzaharPlus?label=Current%20Release)](https://github.com/pflyly/AzaharPlus/releases/latest)
 [![GitHub Downloads](https://img.shields.io/github/downloads/pflyly/AzaharPlus/total?logo=github&label=GitHub%20Downloads)](https://github.com/pflyly/AzaharPlus/releases/latest)
-[![CI Build Status](https://github.com//pflyly/AzaharPlus/actions/workflows/build.yml/badge.svg)](https://github.com/pflyly/AzaharPlus/blob/main/.github/workflows/build.yml)
+[![CI Build Status](https://github.com//pflyly/AzaharPlus/actions/workflows/build.yml/badge.svg)](https://github.com/pflyly/AzaharPlus/actions/workflows/build.yml)
 
 
 <b>AzaharPlus</b> is a fork of the Azahar 3DS emulator that restores some features.
