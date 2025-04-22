@@ -318,14 +318,14 @@ jobs:
        - uses: actions/download-artifact@v4.1.9
          with:
           name: GITREV
-       - name: Read GITREV and Get GITDATE
+       - name: Read GITREV and get GITDATE
          run: |
           export GITREV="$(cat GITREV)"
           echo "APPREV=${GITREV}" >> "${GITHUB_ENV}"
           echo "GITDATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
        - name: Delete same tag release
          run: |
-          gh release delete "${{ env.APPREV }}-${{ env.GITDATE }}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag  -y
+          gh release delete "${{ env.GITDATE }}-${{ env.APPREV }}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag  -y
           sleep 5
          env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
