@@ -1187,8 +1187,8 @@ InstallStatus InstallFromNus(u64 title_id, int version) {
         content.insert(content.end(), temp_response->begin(), temp_response->end());
     }
 
-    FileSys::CIAContainer::Header fake_header{
-        .header_size = sizeof(FileSys::CIAContainer::Header),
+    FileSys::CIAHeader fake_header{
+        .header_size = sizeof(FileSys::CIAHeader),
         .type = 0,
         .version = 0,
         .cert_size = 0,
