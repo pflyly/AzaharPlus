@@ -2,10 +2,10 @@ name: citra-build
 
 on:
   push:
-    branches: [ "*" ]
-    tags: [ "*" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ master ]
+    branches: ["main"]
+  workflow_dispatch: {}
 
 jobs:
   source:
@@ -54,12 +54,24 @@ jobs:
         run: |
           mkdir -p artifacts
           mv build/bundle/*.AppImage artifacts/
-      - name: Upload
+      - name: Upload appimage
         if: ${{ matrix.target == 'appimage' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.OS }}-${{ env.TARGET }}
           path: artifacts/
+      - name: Check GITREV file
+        if: ${{ matrix.target == 'appimage' }}
+        run: |
+          cat ~/GITREV
+          echo "VERSION=$(cat ~/GITREV)" >> "${GITHUB_ENV}"
+      - name: Upload GITREV file
+        if: ${{ matrix.target == 'appimage' }}
+        uses: actions/upload-artifact@v4.6.1
+        with:
+          name: GITREV
+          path: ~/GITREV
+          overwrite: true
   macos:
     runs-on: ${{ (matrix.target == 'x86_64' && 'macos-13') || 'macos-14' }}
     strategy:
@@ -272,4 +284,60 @@ jobs:
         run: brew install ccache ninja
       - name: Build
         run: ./.ci/ios.sh
-
+  
+  release:
+     runs-on: ubuntu-latest
+     #if: ${{ github.ref_name == 'main' }}
+     needs: [windows, linux, macos-universal, android, source]
+     permissions:
+        actions: read
+        security-events: write
+        contents: write
+     steps:
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: windows-msvc
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: windows-msys2
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: linux-appimage
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: macos-universal
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: linux-appimage
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: android-universal
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: source
+       - uses: actions/download-artifact@v4.1.9
+         with:
+          name: GITREV
+       - name: Read GITREV and get GITDATE
+         run: |
+          export GITREV="$(cat GITREV)"
+          echo "APPREV=${GITREV}" >> "${GITHUB_ENV}"
+          echo "GITDATE=$(date +'%Y-%m-%d')" >> "$GITHUB_ENV"
+       - name: Delete same tag release
+         run: |
+          gh release delete "${{ env.GITDATE }}-${{ env.APPREV }}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag  -y
+          sleep 5
+         env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+         continue-on-error: true
+       - name: Create release
+         uses: softprops/action-gh-release@v2
+         with:
+          name: "AzaharPlus Nightly Release: ${{ env.APPREV }}"
+          tag_name: "${{ env.GITDATE }}-${{ env.APPREV }}"
+          prerelease: false
+          draft: false
+          generate_release_notes: false
+          make_latest: true
+          files: |
+            *.AppImage*, *.tar*, *.zip, *.apk

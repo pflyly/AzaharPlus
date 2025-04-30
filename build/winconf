@@ -1,3 +1,0 @@
-git clean -f -x -d -q
-
-cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DENABLE_QT_TRANSLATION=ON
