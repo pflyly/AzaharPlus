@@ -188,6 +188,10 @@ object NativeLibrary {
 
     external fun unlinkConsole()
 
+    external fun setTemporaryFrameLimit(speed: Double)
+
+    external fun disableTemporaryFrameLimit()
+
 
     external fun downloadTitleFromNus(title: Long): InstallStatus
 

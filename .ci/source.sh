@@ -7,6 +7,10 @@ GITREV=$(git rev-parse --short=7 upstream/AzaharPlus)
 GITCOUNT=$(git rev-list --count upstream/AzaharPlus)
 REV_NAME="azaharplus-unified-source-${GITDATE}-${GITCOUNT}-${GITREV}"
 
+if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+    REV_NAME="azahar-unified-source-$GITHUB_REF_NAME"
+fi
+
 COMPAT_LIST='dist/compatibility_list/compatibility_list.json'
 
 mkdir artifacts
